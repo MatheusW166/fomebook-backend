@@ -4,12 +4,15 @@ import followingControllers from "../controllers/following.controllers.js";
 
 const followingRoutes = Router();
 
-followingRoutes.get("/following/:id");
+followingRoutes.get(
+  "/following/:userId",
+  followingControllers.searchFollowingById
+);
 
 followingRoutes.use(authMiddleware.validateToken);
 
-followingRoutes.get("/following");
+followingRoutes.get("/following", followingControllers.searchFollowing);
 followingRoutes.post("/following/:followedId", followingControllers.follow);
-followingRoutes.delete("/following/:id");
+followingRoutes.delete("/following/:followedId", followingControllers.unFollow);
 
 export default followingRoutes;

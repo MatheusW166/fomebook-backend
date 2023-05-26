@@ -12,17 +12,18 @@ async function create({ followerId, followedId }) {
   return rows[0];
 }
 
-async function deleteFollowing({ id }) {
-  const { rowCount } = await db.query(`DELETE FROM following WHERE id=$1;`, [
-    id,
-  ]);
+async function deleteFollowing({ followerId, followedId }) {
+  const { rowCount } = await db.query(
+    `DELETE FROM following WHERE follower=$1 AND followed=$2;`,
+    [followerId, followedId]
+  );
   return rowCount;
 }
 
 async function searchFollowers({ userId }) {
   const { rows } = await db.query(
     `SELECT users.id,users.name,users.email,users.photo,users.bio 
-    FROM (SELECT follower FROM following WHERE followed=$1) AS followers 
+    FROM (SELECT * FROM following WHERE followed=$1) AS followers 
     JOIN users ON followers.follower=users.id;`,
     [userId]
   );
@@ -32,8 +33,8 @@ async function searchFollowers({ userId }) {
 async function searchFollowing({ userId }) {
   const { rows } = await db.query(
     `SELECT users.id,users.name,users.email,users.photo,users.bio 
-      FROM (SELECT follower FROM following WHERE follower=$1) AS follows 
-      JOIN users ON follows.follower=users.id;`,
+      FROM (SELECT * FROM following WHERE follower=$1) AS follows 
+      JOIN users ON follows.followed=users.id;`,
     [userId]
   );
   return rows;

@@ -11,13 +11,19 @@ async function follow({ followerId, followedId }) {
     if (err.message?.includes("duplicate")) {
       throw new ServiceError(409, "you already follow this user");
     }
+    if (err.message?.includes("following_check")) {
+      throw new ServiceError(409, "you can't follow yourself");
+    }
     throw new ServiceError();
   }
 }
 
-async function unFollow({ id }) {
+async function unFollow({ followerId, followedId }) {
   try {
-    const count = await followingRepository.deleteFollowing({ id });
+    const count = await followingRepository.deleteFollowing({
+      followerId,
+      followedId,
+    });
     if (count === 0) {
       throw new ServiceError(404, "not found");
     }
