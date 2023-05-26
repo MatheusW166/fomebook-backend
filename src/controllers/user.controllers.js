@@ -19,6 +19,26 @@ async function signIn(req, res) {
   }
 }
 
-const userControllers = { signUp, signIn };
+async function searchUsers(req, res) {
+  const { name } = req.query;
+  try {
+    const users = await userServices.searchUsers({ name });
+    res.status(200).send(users);
+  } catch (err) {
+    res.status(err.status).send(err.details);
+  }
+}
+
+async function searchById(req, res) {
+  const { id } = req.params;
+  try {
+    const users = await userServices.searchById({ id });
+    res.status(200).send(users);
+  } catch (err) {
+    res.status(err.status).send(err.details);
+  }
+}
+
+const userControllers = { signUp, signIn, searchUsers, searchById };
 
 export default userControllers;

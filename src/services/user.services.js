@@ -51,6 +51,26 @@ async function signIn({ email, password, ip }) {
   }
 }
 
-const userServices = { signUp, signIn };
+async function searchUsers({ name }) {
+  try {
+    name = name?.trim();
+    if (!name) {
+      return [];
+    }
+    return await userRepository.searchUsers({ name });
+  } catch (err) {
+    throw new ServiceError();
+  }
+}
+
+async function searchById({ id }) {
+  try {
+    return await userRepository.searchById({ id });
+  } catch (err) {
+    throw new ServiceError();
+  }
+}
+
+const userServices = { signUp, signIn, searchUsers, searchById };
 
 export default userServices;

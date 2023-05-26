@@ -15,5 +15,7 @@ userRoutes.post(
   schemaMiddleware.validateSchema(userSchemas.signIn),
   userControllers.signIn
 );
+userRoutes.get("/user/search", userControllers.searchUsers);
+userRoutes.get("/user/:id", userControllers.searchById);
 
 export default userRoutes;

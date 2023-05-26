@@ -18,6 +18,26 @@ async function searchByEmail({ email }) {
   return rows[0];
 }
 
-const userRepository = { create, searchByEmail };
+async function searchUsers({ name }) {
+  const nameSearchString = `%${name}%`;
+  const { rows } = await db.query(
+    `SELECT id,name,email,photo,bio FROM users 
+    WHERE name ILIKE $1 
+    ORDER BY name;`,
+    [nameSearchString]
+  );
+  return rows;
+}
+
+async function searchById({ id }) {
+  const { rows } = await db.query(
+    `SELECT id,name,email,photo,bio FROM users 
+    WHERE id=$1;`,
+    [id]
+  );
+  return rows[0];
+}
+
+const userRepository = { create, searchByEmail, searchUsers, searchById };
 
 export default userRepository;
