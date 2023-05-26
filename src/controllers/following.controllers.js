@@ -14,16 +14,6 @@ async function follow(req, res) {
   }
 }
 
-async function searchFollowing(req, res) {
-  const { userId } = req.session;
-  try {
-    const following = await followingServices.searchFollowing({ userId });
-    res.send(following);
-  } catch (err) {
-    res.status(err.status).send(err.details);
-  }
-}
-
 async function searchFollowingById(req, res) {
   const { userId } = req.params;
   try {
@@ -51,7 +41,6 @@ async function unFollow(req, res) {
 const followingControllers = {
   follow,
   unFollow,
-  searchFollowing,
   searchFollowingById,
 };
 

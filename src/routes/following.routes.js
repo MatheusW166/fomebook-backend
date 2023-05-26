@@ -8,11 +8,15 @@ followingRoutes.get(
   "/following/:userId",
   followingControllers.searchFollowingById
 );
-
-followingRoutes.use(authMiddleware.validateToken);
-
-followingRoutes.get("/following", followingControllers.searchFollowing);
-followingRoutes.post("/following/:followedId", followingControllers.follow);
-followingRoutes.delete("/following/:followedId", followingControllers.unFollow);
+followingRoutes.post(
+  "/following/:followedId",
+  authMiddleware.validateToken,
+  followingControllers.follow
+);
+followingRoutes.delete(
+  "/following/:followedId",
+  authMiddleware.validateToken,
+  followingControllers.unFollow
+);
 
 export default followingRoutes;
