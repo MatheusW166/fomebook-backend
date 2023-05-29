@@ -21,8 +21,13 @@ async function searchByEmail({ email }) {
 async function searchUsers({ name }) {
   const nameSearchString = `%${name}%`;
   const { rows } = await db.query(
-    `SELECT id,name,email,photo,bio FROM users 
-    WHERE name ILIKE $1 
+    `SELECT users.id, name,email,photo,bio, 
+    COUNT(f1.followed) AS "followersCount", 
+    COUNT(f2.follower) AS "followingCount" FROM users 
+    FULL JOIN following AS f1 ON f1.followed=users.id
+    FULL JOIN following AS f2 ON f2.follower=users.id 
+    WHERE users.name ILIKE $1
+    GROUP BY users.id,name,email,photo,bio
     ORDER BY name;`,
     [nameSearchString]
   );
@@ -31,8 +36,13 @@ async function searchUsers({ name }) {
 
 async function searchById({ id }) {
   const { rows } = await db.query(
-    `SELECT id,name,email,photo,bio FROM users 
-    WHERE id=$1;`,
+    `SELECT users.id, name,email,photo,bio, 
+    COUNT(f1.followed) AS "followersCount", 
+    COUNT(f2.follower) AS "followingCount" FROM users 
+    FULL JOIN following AS f1 ON f1.followed=users.id
+    FULL JOIN following AS f2 ON f2.follower=users.id 
+    WHERE users.id=$1
+    GROUP BY users.id,name,email,photo,bio;`,
     [id]
   );
   return rows[0];

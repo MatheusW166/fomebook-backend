@@ -16,12 +16,18 @@ async function create({ photo, description, userId }) {
 
 async function searchByUserId({ userId }) {
   const { rows } = await db.query(
-    `SELECT id,
-      photo,
-      description,
-      user_id AS "userId",
-      created_at AS "createdAt" 
-    FROM posts WHERE user_id=$1;`,
+    `SELECT 
+    posts.id,
+    photo,
+    description,
+    posts.user_id AS "userId",
+    posts.created_at AS "createdAt",
+    COUNT(*) AS "likesCount"
+    FROM posts 
+    FULL JOIN likes l ON posts.id=l.post_id 
+    WHERE posts.user_id=$1
+    GROUP BY posts.id,photo,description,posts.user_id,posts.created_at 
+    ORDER BY posts.created_at;`,
     [userId]
   );
   return rows;
