@@ -28,7 +28,7 @@ async function searchUsers({ name }) {
     FULL JOIN following AS f2 ON f2.follower=users.id 
     WHERE users.name ILIKE $1
     GROUP BY users.id,name,email,photo,bio
-    ORDER BY name;`,
+    ORDER BY name DESC;`,
     [nameSearchString]
   );
   return rows;

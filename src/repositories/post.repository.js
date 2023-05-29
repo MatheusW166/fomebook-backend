@@ -18,18 +18,31 @@ async function searchByUserId({ userId }) {
   const { rows } = await db.query(
     `SELECT 
     posts.id,
-    photo,
+    posts.photo,
     description,
     posts.user_id AS "userId",
     posts.created_at AS "createdAt",
-    COUNT(*) AS "likesCount"
+    users.name AS "userName",
+    users.photo AS "userPhoto",
+    COUNT(l.post_id) AS "likesCount"
     FROM posts 
-    FULL JOIN likes l ON posts.id=l.post_id 
+    FULL JOIN likes l ON posts.id=l.post_id
+    JOIN users ON posts.user_id=users.id
     WHERE posts.user_id=$1
-    GROUP BY posts.id,photo,description,posts.user_id,posts.created_at 
-    ORDER BY posts.created_at;`,
+    GROUP BY 
+      posts.id,
+      posts.photo,
+      description,
+      posts.user_id,
+      posts.created_at,
+      users.name,
+      users.photo,
+      l.post_id
+    ORDER BY posts.created_at DESC;
+    `,
     [userId]
   );
+
   return rows;
 }
 

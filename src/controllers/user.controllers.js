@@ -39,6 +39,22 @@ async function searchById(req, res) {
   }
 }
 
-const userControllers = { signUp, signIn, searchUsers, searchById };
+async function getLoggedUser(req, res) {
+  const { userId } = req.session;
+  try {
+    const users = await userServices.searchById({ id: userId });
+    res.status(200).send(users);
+  } catch (err) {
+    res.status(err.status).send(err.details);
+  }
+}
+
+const userControllers = {
+  signUp,
+  signIn,
+  searchUsers,
+  searchById,
+  getLoggedUser,
+};
 
 export default userControllers;

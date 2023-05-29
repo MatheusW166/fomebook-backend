@@ -38,10 +38,25 @@ async function unFollow(req, res) {
   }
 }
 
+async function isFollowing(req, res) {
+  const { userId } = req.session;
+  const { followedId } = req.params;
+  try {
+    const result = await followingServices.isFollowing({
+      userId,
+      followedId,
+    });
+    res.send(result);
+  } catch (err) {
+    res.status(err.status).send(err.details);
+  }
+}
+
 const followingControllers = {
   follow,
   unFollow,
   searchFollowingById,
+  isFollowing,
 };
 
 export default followingControllers;

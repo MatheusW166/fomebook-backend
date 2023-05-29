@@ -47,6 +47,18 @@ async function searchFollowing({ userId }) {
   }
 }
 
-const followingServices = { follow, unFollow, searchFollowing };
+async function isFollowing({ userId, followedId }) {
+  try {
+    const result = await followingRepository.isFollowing({
+      userId,
+      followedId,
+    });
+    return result;
+  } catch (err) {
+    throw new ServiceError();
+  }
+}
+
+const followingServices = { follow, unFollow, searchFollowing, isFollowing };
 
 export default followingServices;

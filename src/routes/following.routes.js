@@ -13,6 +13,13 @@ followingRoutes.post(
   authMiddleware.validateToken,
   followingControllers.follow
 );
+
+followingRoutes.get(
+  "/following/:followedId/check",
+  authMiddleware.validateToken,
+  followingControllers.isFollowing
+);
+
 followingRoutes.delete(
   "/following/:followedId",
   authMiddleware.validateToken,
