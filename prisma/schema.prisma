@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Comments {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  text      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  post      Posts    @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("comments")
+}
+
+model Follows {
+  followerId   String   @default(dbgenerated("uuid_generate_v4()")) @map("follower_id") @db.Uuid
+  followedId   String   @default(dbgenerated("uuid_generate_v4()")) @map("followed_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  userFollowed Users    @relation("user_followed", fields: [followedId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "follows_followed_fkey")
+  userFollower Users    @relation("user_follower", fields: [followerId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "follows_follower_fkey")
+
+  @@id([followerId, followedId])
+  @@map("follows")
+}
+
+model Likes {
+  userId    String   @map("user_id") @db.Uuid
+  postId    String   @map("post_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  post      Posts    @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([userId, postId])
+  @@map("likes")
+}
+
+model Posts {
+  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  photo       String
+  description String
+  userId      String     @map("user_id") @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
+  comments    Comments[]
+  likes       Likes[]
+  users       Users      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("posts")
+}
+
+model Sessions {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  ip        String
+  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("sessions")
+}
+
+model Users {
+  id        String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String
+  email     String     @unique
+  photo     String?
+  bio       String?    @db.VarChar(200)
+  password  String
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
+  comments  Comments[]
+  followers Follows[]  @relation("user_followed")
+  following Follows[]  @relation("user_follower")
+  likes     Likes[]
+  posts     Posts[]
+  sessions  Sessions[]
+
+  @@map("users")
+}
