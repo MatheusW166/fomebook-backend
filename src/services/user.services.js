@@ -9,15 +9,19 @@ config();
 async function signUp({ name, email, photo, bio, password }) {
   try {
     const passwordHashed = hashSync(password, 10);
-    return await userRepository.create({
-      name,
-      email,
-      photo,
-      bio,
-      password: passwordHashed,
+    const user = await userRepository.create({
+      data: {
+        name,
+        email,
+        photo,
+        bio,
+        password: passwordHashed,
+      },
     });
+    delete user.password;
+    return user;
   } catch (err) {
-    if (err.message?.includes("duplicate")) {
+    if (err.message?.includes("Unique constraint failed")) {
       throw new ServiceError(409, "this user already exists");
     }
     throw new ServiceError();
@@ -26,7 +30,7 @@ async function signUp({ name, email, photo, bio, password }) {
 
 async function signIn({ email, password, ip }) {
   try {
-    const userFound = await userRepository.searchByEmail({ email });
+    const userFound = await userRepository.findUnique({ where: { email } });
     if (!userFound) {
       throw new ServiceError(404, "email not found");
     }
@@ -36,11 +40,13 @@ async function signIn({ email, password, ip }) {
     }
 
     const session = await sessionRepository.create({
-      userId: userFound.id,
-      ip,
+      data: {
+        ip,
+        user: { connect: { id: userFound.id } },
+      },
     });
     const token = jwt.sign(session, process.env.JWT_KEY, {
-      expiresIn: process.env.JWT_EXPIRES,
+      expiresIn: process.env.JWT_EXPIRES ?? "14d",
     });
 
     delete userFound.password;
@@ -57,7 +63,25 @@ async function searchUsers({ name }) {
     if (!name) {
       return [];
     }
-    return await userRepository.searchUsers({ name });
+    const users = await userRepository.findMany({
+      where: { name: { contains: name, mode: "insensitive" } },
+      orderBy: { name: "desc" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        photo: true,
+        bio: true,
+        createdAt: true,
+        _count: { select: { followers: true, following: true } },
+      },
+    });
+    return users.map((user) => {
+      user.followersCount = user._count.followers;
+      user.followingCount = user._count.following;
+      delete user._count;
+      return user;
+    });
   } catch (err) {
     throw new ServiceError();
   }
@@ -65,8 +89,27 @@ async function searchUsers({ name }) {
 
 async function searchById({ id }) {
   try {
-    return await userRepository.searchById({ id });
+    const user = await userRepository.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        photo: true,
+        bio: true,
+        createdAt: true,
+        _count: { select: { followers: true, following: true } },
+      },
+    });
+    if (!user) {
+      throw new ServiceError(404, "not found");
+    }
+    user.followersCount = user._count.followers;
+    user.followingCount = user._count.following;
+    delete user._count;
+    return user;
   } catch (err) {
+    if (err instanceof ServiceError) throw err;
     throw new ServiceError();
   }
 }
