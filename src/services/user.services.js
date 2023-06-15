@@ -1,4 +1,4 @@
-import userRepository from "../repositories/user.repository.js";
+import userRepository, { userArgs } from "../repositories/user.repository.js";
 import { hashSync, compareSync } from "bcrypt";
 import ServiceError from "./service.error.js";
 import jwt from "jsonwebtoken";
@@ -66,15 +66,7 @@ async function searchUsers({ name }) {
     const users = await userRepository.findMany({
       where: { name: { contains: name, mode: "insensitive" } },
       orderBy: { name: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        photo: true,
-        bio: true,
-        createdAt: true,
-        _count: { select: { followers: true, following: true } },
-      },
+      select: userArgs.select,
     });
     return users.map((user) => {
       user.followersCount = user._count.followers;
@@ -91,15 +83,7 @@ async function searchById({ id }) {
   try {
     const user = await userRepository.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        photo: true,
-        bio: true,
-        createdAt: true,
-        _count: { select: { followers: true, following: true } },
-      },
+      select: userArgs.select,
     });
     if (!user) {
       throw new ServiceError(404, "not found");
@@ -114,6 +98,11 @@ async function searchById({ id }) {
   }
 }
 
-const userServices = { signUp, signIn, searchUsers, searchById };
+const userServices = {
+  signUp,
+  signIn,
+  searchUsers,
+  searchById,
+};
 
 export default userServices;
