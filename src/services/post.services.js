@@ -1,5 +1,6 @@
 import postRepository from "../repositories/post.repository.js";
 import userRepository from "../repositories/user.repository.js";
+import { mapPosts } from "../utils/posts.utils.js";
 import ServiceError from "./service.error.js";
 
 async function newPost({ photo, description, userId }) {
@@ -12,7 +13,7 @@ async function newPost({ photo, description, userId }) {
   }
 }
 
-async function searchByUserId({ userId }) {
+async function searchByUserId({ userId, limit, offset }) {
   try {
     const user = await userRepository.findUnique({ where: { id: userId } });
     if (!user) throw new ServiceError(404, "user not found");
@@ -29,15 +30,10 @@ async function searchByUserId({ userId }) {
         user: { select: { name: true, photo: true } },
         _count: { select: { likes: true } },
       },
+      take: limit,
+      skip: offset,
     });
-    return posts.map((post) => {
-      post.userName = post.user.name;
-      post.userPhoto = post.user.photo;
-      post.likesCount = post._count.likes;
-      delete post._count;
-      delete post.user;
-      return post;
-    });
+    return mapPosts(posts);
   } catch (err) {
     if (err instanceof ServiceError) throw err;
     throw new ServiceError();

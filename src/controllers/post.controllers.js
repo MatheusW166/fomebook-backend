@@ -12,8 +12,9 @@ async function newPost(req, res) {
 
 async function searchByUserId(req, res) {
   const { userId } = req.params;
+  const { limit, offset } = req.query;
   try {
-    const posts = await postServices.searchByUserId({ userId });
+    const posts = await postServices.searchByUserId({ userId, limit, offset });
     res.send(posts);
   } catch (err) {
     res.status(err.status).send(err.details);

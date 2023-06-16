@@ -3,6 +3,7 @@ import schemaMiddleware from "../middlewares/schema.middleware.js";
 import userSchemas from "../schemas/user.schema.js";
 import userControllers from "../controllers/user.controllers.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
+import querySchemas from "../schemas/query.schema.js";
 
 const userRoutes = Router();
 
@@ -16,7 +17,11 @@ userRoutes.post(
   schemaMiddleware.validateSchema(userSchemas.signIn),
   userControllers.signIn
 );
-userRoutes.get("/user/search", userControllers.searchUsers);
+userRoutes.get(
+  "/user/search",
+  schemaMiddleware.validateQuery(querySchemas.pagination),
+  userControllers.searchUsers
+);
 userRoutes.get("/user/:id", userControllers.searchById);
 
 userRoutes.get(

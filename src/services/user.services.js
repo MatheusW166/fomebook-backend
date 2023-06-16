@@ -3,6 +3,7 @@ import { hashSync, compareSync } from "bcrypt";
 import ServiceError from "./service.error.js";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
+import { mapUsersFollowCount } from "../utils/users.utils.js";
 import sessionRepository from "../repositories/session.repository.js";
 config();
 
@@ -18,6 +19,7 @@ async function signUp({ name, email, photo, bio, password }) {
         password: passwordHashed,
       },
     });
+
     delete user.password;
     return user;
   } catch (err) {
@@ -39,13 +41,16 @@ async function signIn({ email, password, ip }) {
       throw new ServiceError(401, "incorrect password");
     }
 
+    await sessionRepository.deleteMany({ where: { userId: userFound.id } });
+
     const session = await sessionRepository.create({
       data: {
         ip,
         user: { connect: { id: userFound.id } },
       },
     });
-    const token = jwt.sign(session, process.env.JWT_KEY, {
+
+    const token = jwt.sign({ session: session.id }, process.env.JWT_KEY, {
       expiresIn: process.env.JWT_EXPIRES ?? "14d",
     });
 
@@ -57,7 +62,7 @@ async function signIn({ email, password, ip }) {
   }
 }
 
-async function searchUsers({ name }) {
+async function searchUsers({ name, offset, limit }) {
   try {
     name = name?.trim();
     if (!name) {
@@ -67,13 +72,10 @@ async function searchUsers({ name }) {
       where: { name: { contains: name, mode: "insensitive" } },
       orderBy: { name: "desc" },
       select: userArgs.select,
+      skip: offset,
+      take: limit,
     });
-    return users.map((user) => {
-      user.followersCount = user._count.followers;
-      user.followingCount = user._count.following;
-      delete user._count;
-      return user;
-    });
+    return mapUsersFollowCount(users);
   } catch (err) {
     throw new ServiceError();
   }
@@ -88,10 +90,7 @@ async function searchById({ id }) {
     if (!user) {
       throw new ServiceError(404, "not found");
     }
-    user.followersCount = user._count.followers;
-    user.followingCount = user._count.following;
-    delete user._count;
-    return user;
+    return mapUsersFollowCount([user]).at(0);
   } catch (err) {
     if (err instanceof ServiceError) throw err;
     throw new ServiceError();

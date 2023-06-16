@@ -20,9 +20,9 @@ async function signIn(req, res) {
 }
 
 async function searchUsers(req, res) {
-  const { name } = req.query;
+  const { name, limit, offset } = req.query;
   try {
-    const users = await userServices.searchUsers({ name });
+    const users = await userServices.searchUsers({ name, limit, offset });
     res.status(200).send(users);
   } catch (err) {
     res.status(err.status).send(err.details);
