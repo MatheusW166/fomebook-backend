@@ -4,7 +4,8 @@
   "main": "./src/app.js",
   "type": "module",
   "scripts": {
-    "start": "node ./src/app.js",
+    "prisma": "npx prisma generate",
+    "start": "npm run prisma && node ./src/app.js",
     "dev": "nodemon ./src/app.js"
   },
   "keywords": [],
