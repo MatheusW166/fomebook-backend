@@ -66,7 +66,7 @@ async function isFollowing({ userId, followedId }) {
       where: {
         followerId_followedId: {
           followerId: userId,
-          followedId: followedId,
+          followedId,
         },
       },
     });
@@ -76,6 +76,8 @@ async function isFollowing({ userId, followedId }) {
   }
 }
 
-const followingServices = { follow, unFollow, searchFollowing, isFollowing };
+const followingServices = {
+  follow, unFollow, searchFollowing, isFollowing,
+};
 
 export default followingServices;

@@ -10,24 +10,24 @@ const userRoutes = Router();
 userRoutes.post(
   "/user/signup",
   schemaMiddleware.validateSchema(userSchemas.create),
-  userControllers.signUp
+  userControllers.signUp,
 );
 userRoutes.post(
   "/user/signin",
   schemaMiddleware.validateSchema(userSchemas.signIn),
-  userControllers.signIn
+  userControllers.signIn,
 );
 userRoutes.get(
   "/user/search",
   schemaMiddleware.validateQuery(querySchemas.pagination),
-  userControllers.searchUsers
+  userControllers.searchUsers,
 );
 userRoutes.get("/user/:id", userControllers.searchById);
 
 userRoutes.get(
   "/user",
   authMiddleware.validateToken,
-  userControllers.getLoggedUser
+  userControllers.getLoggedUser,
 );
 
 export default userRoutes;

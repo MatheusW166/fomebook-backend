@@ -9,8 +9,10 @@ async function validateToken(req, res, next) {
     return res.status(401).send({ error: "token does not exist" });
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_KEY, (err, decoded) =>
-    err ? null : decoded
+  const decoded = jwt.verify(
+    token,
+    process.env.JWT_KEY,
+    (err, decodedJwt) => (err ? null : decodedJwt),
   );
 
   if (decoded === null) {
@@ -23,9 +25,9 @@ async function validateToken(req, res, next) {
     });
 
     req.session = sessionFound;
-    next();
+    return next();
   } catch (err) {
-    if ((err.code = "P2025")) {
+    if (err.code === "P2025") {
       return res.status(401).send({ error: "session not found" });
     }
     return res.status(500).send({ error: "internal server error" });

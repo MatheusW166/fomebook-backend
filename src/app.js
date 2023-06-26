@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import userRoutes from "./routes/user.routes.js";
 import followingRoutes from "./routes/following.routes.js";
 import postRoutes from "./routes/post.routes.js";
+
 config();
 
 const app = express();

@@ -1,9 +1,8 @@
 function mapErrorDetails(detail) {
-  const key =
-    detail.context.key ??
-    detail.context.label ??
-    detail.context.value ??
-    "message";
+  const key = detail.context.key
+    ?? detail.context.label
+    ?? detail.context.value
+    ?? "message";
   return {
     [key]: detail.message,
   };
@@ -20,7 +19,7 @@ function validateSchema(schema) {
       });
     }
     req.body = value;
-    next();
+    return next();
   };
 }
 
@@ -35,7 +34,7 @@ function validateQuery(schema) {
       });
     }
     req.query = value;
-    next();
+    return next();
   };
 }
 

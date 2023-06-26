@@ -1,13 +1,16 @@
-import userRepository, { userArgs } from "../repositories/user.repository.js";
 import { hashSync, compareSync } from "bcrypt";
-import ServiceError from "./service.error.js";
 import jwt from "jsonwebtoken";
 import { config } from "dotenv";
+import ServiceError from "./service.error.js";
+import userRepository, { userArgs } from "../repositories/user.repository.js";
 import { mapUsersFollowCount } from "../utils/users.utils.js";
 import sessionRepository from "../repositories/session.repository.js";
+
 config();
 
-async function signUp({ name, email, photo, bio, password }) {
+async function signUp({
+  name, email, photo, bio, password,
+}) {
   try {
     const passwordHashed = hashSync(password, 10);
     const user = await userRepository.create({

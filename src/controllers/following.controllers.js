@@ -1,7 +1,7 @@
 import followingServices from "../services/following.services.js";
 
 async function follow(req, res) {
-  const session = req.session;
+  const { session } = req;
   const { followedId } = req.params;
   try {
     const following = await followingServices.follow({
@@ -25,7 +25,7 @@ async function searchFollowingById(req, res) {
 }
 
 async function unFollow(req, res) {
-  const session = req.session;
+  const { session } = req;
   const { followedId } = req.params;
   try {
     await followingServices.unFollow({

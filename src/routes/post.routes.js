@@ -11,12 +11,12 @@ postRoutes.post(
   "/post",
   schemaMiddleware.validateSchema(postSchemas.create),
   authMiddleware.validateToken,
-  postControllers.newPost
+  postControllers.newPost,
 );
 postRoutes.get(
   "/post/:userId",
   schemaMiddleware.validateQuery(querySchemas.pagination),
-  postControllers.searchByUserId
+  postControllers.searchByUserId,
 );
 
 export default postRoutes;

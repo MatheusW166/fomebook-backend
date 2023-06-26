@@ -6,24 +6,24 @@ const followingRoutes = Router();
 
 followingRoutes.get(
   "/following/:userId",
-  followingControllers.searchFollowingById
+  followingControllers.searchFollowingById,
 );
 followingRoutes.post(
   "/following/:followedId",
   authMiddleware.validateToken,
-  followingControllers.follow
+  followingControllers.follow,
 );
 
 followingRoutes.get(
   "/following/:followedId/check",
   authMiddleware.validateToken,
-  followingControllers.isFollowing
+  followingControllers.isFollowing,
 );
 
 followingRoutes.delete(
   "/following/:followedId",
   authMiddleware.validateToken,
-  followingControllers.unFollow
+  followingControllers.unFollow,
 );
 
 export default followingRoutes;
